@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.cc": "cpp",
+        "time.h": "c",
+        "fenv.h": "c"
+    }
+}
