@@ -22,6 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifdef _MSC_VER // _MSC_VER
+#include "msvc-defs.h"
+#endif // _MSC_VER
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -166,6 +170,8 @@ int dbuf_putstr(DynBuf *s, const char *str)
     return dbuf_put(s, (const uint8_t *)str, strlen(str));
 }
 
+#ifndef _MSC_VER // !_MSC_VER
+
 int __attribute__((format(printf, 2, 3))) dbuf_printf(DynBuf *s,
                                                       const char *fmt, ...)
 {
@@ -190,6 +196,34 @@ int __attribute__((format(printf, 2, 3))) dbuf_printf(DynBuf *s,
     }
     return 0;
 }
+
+#else // _MSC_VER
+
+int dbuf_printf(DynBuf *s, const char *fmt, ...)
+{
+    va_list ap;
+    char buf[128];
+    int len;
+    
+    va_start(ap, fmt);
+    len = vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    if (len < sizeof(buf)) {
+        /* fast case */
+        return dbuf_put(s, (uint8_t *)buf, len);
+    } else {
+        if (dbuf_realloc(s, s->size + len + 1))
+            return -1;
+        va_start(ap, fmt);
+        vsnprintf((char *)(s->buf + s->size), s->allocated_size - s->size,
+                  fmt, ap);
+        va_end(ap);
+        s->size += len;
+    }
+    return 0;
+}
+
+#endif // !_MSC_VER
 
 void dbuf_free(DynBuf *s)
 {

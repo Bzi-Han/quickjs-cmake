@@ -1,6 +1,6 @@
 /*
  * C utilities
- * 
+ *
  * Copyright (c) 2017 Fabrice Bellard
  * Copyright (c) 2018 Charlie Gordon
  *
@@ -31,19 +31,31 @@
 /* set if CPU is big endian */
 #undef WORDS_BIGENDIAN
 
-#define likely(x)       __builtin_expect(!!(x), 1)
-#define unlikely(x)     __builtin_expect(!!(x), 0)
+#ifndef _MSC_VER // !_MSC_VER
+
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
 #define force_inline inline __attribute__((always_inline))
 #define no_inline __attribute__((noinline))
 #define __maybe_unused __attribute__((unused))
 
-#define xglue(x, y) x ## y
+#else // _MSC_VER
+
+#define likely(x) (x)
+#define unlikely(x) (x)
+#define force_inline __forceinline
+#define no_inline __declspec(noinline)
+#define __maybe_unused
+
+#endif // !_MSC_VER
+
+#define xglue(x, y) x##y
 #define glue(x, y) xglue(x, y)
-#define stringify(s)    tostring(s)
-#define tostring(s)     #s
+#define stringify(s) tostring(s)
+#define tostring(s) #s
 
 #ifndef offsetof
-#define offsetof(type, field) ((size_t) &((type *)0)->field)
+#define offsetof(type, field) ((size_t) & ((type *)0)->field)
 #endif
 #ifndef countof
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
@@ -52,7 +64,8 @@
 typedef int BOOL;
 
 #ifndef FALSE
-enum {
+enum
+{
     FALSE = 0,
     TRUE = 1,
 };
@@ -135,17 +148,43 @@ static inline int ctz64(uint64_t a)
     return __builtin_ctzll(a);
 }
 
-struct __attribute__((packed)) packed_u64 {
+#ifndef _MSC_VER // !_MSC_VER
+
+struct __attribute__((packed)) packed_u64
+{
     uint64_t v;
 };
 
-struct __attribute__((packed)) packed_u32 {
+struct __attribute__((packed)) packed_u32
+{
     uint32_t v;
 };
 
-struct __attribute__((packed)) packed_u16 {
+struct __attribute__((packed)) packed_u16
+{
     uint16_t v;
 };
+
+#else // _MSC_VER
+
+#pragma pack(push, 1)
+struct packed_u64
+{
+    uint64_t v;
+};
+
+struct packed_u32
+{
+    uint32_t v;
+};
+
+struct packed_u16
+{
+    uint16_t v;
+};
+#pragma pack(pop)
+
+#endif // !_MSC_VER
 
 static inline uint64_t get_u64(const uint8_t *tab)
 {
@@ -214,26 +253,27 @@ static inline uint16_t bswap16(uint16_t x)
 
 static inline uint32_t bswap32(uint32_t v)
 {
-    return ((v & 0xff000000) >> 24) | ((v & 0x00ff0000) >>  8) |
-        ((v & 0x0000ff00) <<  8) | ((v & 0x000000ff) << 24);
+    return ((v & 0xff000000) >> 24) | ((v & 0x00ff0000) >> 8) |
+           ((v & 0x0000ff00) << 8) | ((v & 0x000000ff) << 24);
 }
 
 static inline uint64_t bswap64(uint64_t v)
 {
-    return ((v & ((uint64_t)0xff << (7 * 8))) >> (7 * 8)) | 
-        ((v & ((uint64_t)0xff << (6 * 8))) >> (5 * 8)) | 
-        ((v & ((uint64_t)0xff << (5 * 8))) >> (3 * 8)) | 
-        ((v & ((uint64_t)0xff << (4 * 8))) >> (1 * 8)) | 
-        ((v & ((uint64_t)0xff << (3 * 8))) << (1 * 8)) | 
-        ((v & ((uint64_t)0xff << (2 * 8))) << (3 * 8)) | 
-        ((v & ((uint64_t)0xff << (1 * 8))) << (5 * 8)) | 
-        ((v & ((uint64_t)0xff << (0 * 8))) << (7 * 8));
+    return ((v & ((uint64_t)0xff << (7 * 8))) >> (7 * 8)) |
+           ((v & ((uint64_t)0xff << (6 * 8))) >> (5 * 8)) |
+           ((v & ((uint64_t)0xff << (5 * 8))) >> (3 * 8)) |
+           ((v & ((uint64_t)0xff << (4 * 8))) >> (1 * 8)) |
+           ((v & ((uint64_t)0xff << (3 * 8))) << (1 * 8)) |
+           ((v & ((uint64_t)0xff << (2 * 8))) << (3 * 8)) |
+           ((v & ((uint64_t)0xff << (1 * 8))) << (5 * 8)) |
+           ((v & ((uint64_t)0xff << (0 * 8))) << (7 * 8));
 }
 
 /* XXX: should take an extra argument to pass slack information to the caller */
 typedef void *DynBufReallocFunc(void *opaque, void *ptr, size_t size);
 
-typedef struct DynBuf {
+typedef struct DynBuf
+{
     uint8_t *buf;
     size_t size;
     size_t allocated_size;
@@ -262,10 +302,15 @@ static inline int dbuf_put_u64(DynBuf *s, uint64_t val)
 {
     return dbuf_put(s, (uint8_t *)&val, 8);
 }
+#ifndef _MSC_VER // !_MSC_VER
 int __attribute__((format(printf, 2, 3))) dbuf_printf(DynBuf *s,
                                                       const char *fmt, ...);
+#else  // _MSC_VER
+int dbuf_printf(DynBuf *s, const char *fmt, ...);
+#endif // !_MSC_VER
 void dbuf_free(DynBuf *s);
-static inline BOOL dbuf_error(DynBuf *s) {
+static inline BOOL dbuf_error(DynBuf *s)
+{
     return s->error;
 }
 static inline void dbuf_set_error(DynBuf *s)
@@ -294,4 +339,4 @@ void rqsort(void *base, size_t nmemb, size_t size,
             int (*cmp)(const void *, const void *, void *),
             void *arg);
 
-#endif  /* CUTILS_H */
+#endif /* CUTILS_H */

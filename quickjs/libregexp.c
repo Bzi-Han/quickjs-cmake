@@ -21,6 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifdef _MSC_VER // _MSC_VER
+#include "msvc-defs.h"
+#endif // _MSC_VER
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -427,6 +431,8 @@ static void re_emit_op_u16(REParseState *s, int op, uint32_t val)
     dbuf_put_u16(&s->byte_code, val);
 }
 
+#ifndef _MSC_VER // !_MSC_VER
+
 static int __attribute__((format(printf, 2, 3))) re_parse_error(REParseState *s, const char *fmt, ...)
 {
     va_list ap;
@@ -435,6 +441,19 @@ static int __attribute__((format(printf, 2, 3))) re_parse_error(REParseState *s,
     va_end(ap);
     return -1;
 }
+
+#else // _MSC_VER
+
+static int re_parse_error(REParseState *s, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(s->u.error_msg, sizeof(s->u.error_msg), fmt, ap);
+    va_end(ap);
+    return -1;
+}
+
+#endif // !_MSC_VER
 
 static int re_parse_out_of_memory(REParseState *s)
 {

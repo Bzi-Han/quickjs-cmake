@@ -22,25 +22,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifdef _MSC_VER // _MSC_VER
+#include "msvc-defs.h"
+#endif // _MSC_VER
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <inttypes.h>
 #include <string.h>
 #include <assert.h>
-#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/time.h>
 #include <time.h>
 #include <signal.h>
 #include <limits.h>
 #include <sys/stat.h>
+
+#ifndef _MSC_VER // !_MSC_VER
+
+#include <unistd.h>
+#include <sys/time.h>
 #include <dirent.h>
+#include <utime.h>
+
+#else // _MSC_VER
+
+#include <sys/utime.h>
+#include <dirent-windows.h>
+
+#endif // !_MSC_VER
+
 #if defined(_WIN32)
 #include <windows.h>
 #include <conio.h>
-#include <utime.h>
 #else
 #include <dlfcn.h>
 #include <termios.h>
@@ -1962,6 +1977,31 @@ static JSValue js_os_signal(JSContext *ctx, JSValueConst this_val,
     }
     return JS_UNDEFINED;
 }
+
+#ifdef _MSC_VER // !_MSC_VER
+
+int gettimeofday(struct timeval * tp, struct timezone * tzp)
+{
+    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+    // This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+    // until 00:00:00 January 1, 1970 
+    static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
+
+    SYSTEMTIME  system_time;
+    FILETIME    file_time;
+    uint64_t    time;
+
+    GetSystemTime( &system_time );
+    SystemTimeToFileTime( &system_time, &file_time );
+    time =  ((uint64_t)file_time.dwLowDateTime )      ;
+    time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+    tp->tv_sec  = (long) ((time - EPOCH) / 10000000L);
+    tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
+    return 0;
+}
+
+#endif // !_MSC_VER
 
 #if defined(__linux__) || defined(__APPLE__)
 static int64_t get_time_ms(void)
