@@ -51,6 +51,7 @@
 
 #else // _MSC_VER
 
+#include <signal.h>
 #include <sys/utime.h>
 #include <dirent-windows.h>
 

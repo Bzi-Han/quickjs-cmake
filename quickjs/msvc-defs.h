@@ -15,6 +15,8 @@
 #define popen _popen
 #define pclose _pclose
 
+#define ssize_t intptr_t
+
 struct timeval
 {
     long tv_sec;  /* seconds */
