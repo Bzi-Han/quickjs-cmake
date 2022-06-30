@@ -1,12 +1,15 @@
 #include <quickjs.h>
 
 #include <iostream>
+#include <string>
 
 int main()
 {
     auto runtime = JS_NewRuntime();
     auto context = JS_NewContext(runtime);
-    auto jsResult = JS_Eval(context, "1 + 2", JS_EVAL_TYPE_GLOBAL, "<input>", 0);
+
+    std::string script = "1 + 2 + 3";
+    auto jsResult = JS_Eval(context, script.data(), script.size(), "<input>", JS_EVAL_TYPE_GLOBAL);
 
     int result = 0;
     if (0 == JS_ToInt32(context, &result, jsResult))

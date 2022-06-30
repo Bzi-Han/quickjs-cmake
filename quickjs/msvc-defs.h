@@ -11,17 +11,14 @@
 
 #define EMSCRIPTEN
 
-#define CONFIG_VERSION "2022-03-27"
-
 #define PATH_MAX MAX_PATH
-# define popen _popen
-# define pclose _pclose
+#define popen _popen
+#define pclose _pclose
 
-#define ssize_t intptr_t
-
-struct timeval {
-    long    tv_sec;         /* seconds */
-    long    tv_usec;        /* and microseconds */
+struct timeval
+{
+    long tv_sec;  /* seconds */
+    long tv_usec; /* and microseconds */
 };
 
 int gettimeofday(struct timeval *tp, void *tzp);

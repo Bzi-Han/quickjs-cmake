@@ -2,6 +2,13 @@
     "files.associations": {
         "*.cc": "cpp",
         "time.h": "c",
-        "fenv.h": "c"
+        "fenv.h": "c",
+        "msvc-defs.h": "c",
+        "quickjs-defs.h": "c",
+        "limits.h": "c",
+        "unistd.h": "c",
+        "stdatomic.h": "c",
+        "signal.h": "c",
+        "stdio.h": "c"
     }
 }

@@ -1,0 +1,6 @@
+#ifndef QUICKJS_DEFS_H // !QUICKJS_DEFS_H
+#define QUICKJS_DEFS_H
+
+#define CONFIG_VERSION "2022-03-07"
+
+#endif // !QUICKJS_DEFS_H

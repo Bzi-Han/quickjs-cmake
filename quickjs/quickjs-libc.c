@@ -35,12 +35,15 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <time.h>
-#include <signal.h>
 #include <limits.h>
 #include <sys/stat.h>
 
 #ifndef _MSC_VER // !_MSC_VER
 
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+#include <signal.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <dirent.h>
