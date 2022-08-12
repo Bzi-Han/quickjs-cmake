@@ -42273,8 +42273,11 @@ static JSValue js___date_clock(JSContext *ctx, JSValueConst this_val,
    between UTC time and local time 'd' in minutes */
 static int getTimezoneOffset(int64_t time) {
 #if defined(_WIN32)
-    /* XXX: TODO */
-    return 0;
+    long offset = 0;
+    if(_get_timezone(&offset) == 0)
+        return -offset / 60;
+    else
+        return 0;
 #else
     time_t ti;
     struct tm tm;
