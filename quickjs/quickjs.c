@@ -42190,6 +42190,8 @@ static double js_math_floor(double value) { return floor(value); }
 
 static double js_math_ceil(double value) { return ceil(value); }
 
+static double js_math_log2(double value) { return log2(value); }
+
 static const JSCFunctionListEntry js_math_funcs[] = {
     JS_CFUNC_MAGIC_DEF("min", 2, js_math_min_max, 0 ),
     JS_CFUNC_MAGIC_DEF("max", 2, js_math_min_max, 1 ),
@@ -42220,7 +42222,7 @@ static const JSCFunctionListEntry js_math_funcs[] = {
     JS_CFUNC_SPECIAL_DEF("atanh", 1, f_f, atanh ),
     JS_CFUNC_SPECIAL_DEF("expm1", 1, f_f, expm1 ),
     JS_CFUNC_SPECIAL_DEF("log1p", 1, f_f, log1p ),
-    JS_CFUNC_SPECIAL_DEF("log2", 1, f_f, log2 ),
+    JS_CFUNC_SPECIAL_DEF("log2", 1, f_f, js_math_log2 ),
     JS_CFUNC_SPECIAL_DEF("log10", 1, f_f, log10 ),
     JS_CFUNC_SPECIAL_DEF("cbrt", 1, f_f, cbrt ),
     JS_CFUNC_DEF("hypot", 2, js_math_hypot ),
