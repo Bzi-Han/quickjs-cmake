@@ -48795,8 +48795,12 @@ static JSValue js_Date_parse(JSContext *ctx, JSValueConst this_val,
                 c = '.';
                 break;
             }
-            if (string_get(sp, p) != c)
-                break;
+            int symbol = string_get(sp, p);
+            if (symbol != c) {
+                /* Compatible with format like "2022-08-26 12:00:01"*/
+                if(!(i == 3 && symbol == ' '))
+                    break;
+            }
             p++;
             if (i == 6) {
                 if (string_get_milliseconds(sp, &p, &fields[i]))
