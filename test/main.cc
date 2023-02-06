@@ -2,12 +2,17 @@
 #include <quickjs-libc.h>
 
 #include <iostream>
+#include <fstream>
 #include <string>
+
 
 const char script[] = R"(
     import * as os from "os";
+    import {funcInModule} from "./test-module.js"
 
     console.log('[=] message from console.log');
+
+    funcInModule();
 
     let timers = [];
     for(let i = 0; i < 4; i++)
@@ -45,6 +50,11 @@ const char script[] = R"(
 
 int main()
 {
+    // create ESM code file for test
+    std::ofstream("test-module.js")
+        << "export function funcInModule(){ console.log('[=] message from ES Module'); };";
+
+    // start test
     auto runtime = JS_NewRuntime();
     if (nullptr == runtime)
     {
@@ -58,6 +68,7 @@ int main()
         return 1;
     }
 
+    JS_SetModuleLoaderFunc(runtime, NULL, js_module_loader, NULL);  /* set loader for ES6 modules */
     js_std_init_handlers(runtime);           // init event handlers
     js_std_add_helpers(context, 0, nullptr); // add helpers like 'console', 'print'
     js_init_module_os(context, "os");        // register module 'os'
