@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12.0)
 
 project(libquickjs)
 
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+option(QUICKJS_BUILD_TEST "Build test program." ON)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_COMPILE_FEATURES "${CMAKE_CXX_COMPILE_FEATURES} /MT /GR- /utf-8")
@@ -19,9 +20,11 @@ set(SOURCES
 	quickjs/cutils.c
 	quickjs/quickjs-libc.c)
 
-# build quickjs static library
+# Build quickjs static library
 add_library(quickjs STATIC ${SOURCES})
 
-# build test program
-add_executable(test test/main.cc)
-target_link_libraries(test quickjs)
+# Build test program
+if(QUICKJS_BUILD_TEST)
+	add_executable(quickjs-test test/main.cc)
+	target_link_libraries(quickjs-test quickjs)
+endif()
