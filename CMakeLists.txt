@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.12.0)
 
 project(libquickjs)
 
+cmake_policy(SET CMP0077 NEW)
+
 option(QUICKJS_BUILD_TEST "Build test program." ON)
 
 set(CMAKE_CXX_STANDARD 20)
