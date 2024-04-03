@@ -6922,6 +6922,11 @@ static inline __exception int js_poll_interrupts(JSContext *ctx)
     }
 }
 
+int JS_PollInterrupts(JSContext *ctx)
+{
+    return js_poll_interrupts(ctx);
+}
+
 /* return -1 (exception) or TRUE/FALSE */
 static int JS_SetPrototypeInternal(JSContext *ctx, JSValueConst obj,
                                    JSValueConst proto_val,
